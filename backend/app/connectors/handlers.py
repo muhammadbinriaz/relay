@@ -41,6 +41,7 @@ async def execute_step(step_type: str, config: dict[str, Any], context: dict[str
         "human.approve": handle_human_approve,
         "csv.export": handle_csv_export,
         "slack.notify": handle_slack_notify,
+        "hubspot.upsert": handle_hubspot_upsert,
         "http.webhook": handle_http_webhook,
         "email.stub": handle_email_stub,
     }
@@ -179,6 +180,69 @@ async def handle_slack_notify(config: dict[str, Any], context: dict[str, Any], *
     )
     result = await post_slack(text)
     return StepResult(output={"notified": True, "slack": result, "text": text})
+
+
+async def handle_hubspot_upsert(config: dict[str, Any], context: dict[str, Any], *, run_id: UUID) -> StepResult:
+    """Upsert contacts by email. Stubs when HUBSPOT_ACCESS_TOKEN is unset."""
+    validate_out = context.get("validate") or {}
+    rows = validate_out.get("valid_rows") or []
+    token = settings.hubspot_access_token.strip()
+    skip_if_unconfigured = bool(config.get("skip_if_unconfigured", True))
+
+    if not token:
+        if skip_if_unconfigured:
+            logger.info("hubspot_stub run_id=%s rows=%s", run_id, len(rows))
+            return StepResult(
+                output={
+                    "stub": True,
+                    "skipped": True,
+                    "reason": "HUBSPOT_ACCESS_TOKEN not configured",
+                    "row_count": len(rows),
+                }
+            )
+        raise ValueError("HUBSPOT_ACCESS_TOKEN required for hubspot.upsert")
+
+    # HubSpot batch upsert — max 100 per request
+    inputs = []
+    for row in rows[:100]:
+        email = row.get("email")
+        if not email:
+            continue
+        props = {
+            "email": email,
+            "firstname": (row.get("name") or "").split(" ", 1)[0] or email,
+            "lastname": " ".join((row.get("name") or "").split(" ")[1:]) or "Relay",
+            "company": row.get("company") or "",
+            "jobtitle": row.get("title") or "",
+        }
+        inputs.append(
+            {
+                "idProperty": "email",
+                "id": email,
+                "properties": props,
+            }
+        )
+
+    if not inputs:
+        return StepResult(output={"upserted": 0, "message": "No emails to upsert"})
+
+    async with httpx.AsyncClient(timeout=30) as client:
+        resp = await client.post(
+            "https://api.hubapi.com/crm/v3/objects/contacts/batch/upsert",
+            headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+            json={"inputs": inputs},
+        )
+        if resp.status_code >= 400:
+            raise ValueError(f"HubSpot upsert failed ({resp.status_code}): {resp.text[:500]}")
+        body = resp.json()
+
+    return StepResult(
+        output={
+            "upserted": len(inputs),
+            "status_code": resp.status_code,
+            "results": len(body.get("results") or []),
+        }
+    )
 
 
 async def handle_http_webhook(config: dict[str, Any], context: dict[str, Any], *, run_id: UUID) -> StepResult:

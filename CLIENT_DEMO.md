@@ -12,12 +12,13 @@
 
 1. **Open console** — “This is Relay, a durable workflow control plane I deploy for ops teams.”
 2. **Workflows** — show `Ops Intake Pipeline` steps: ingest → validate → approve → export → notify.
-3. **Run fixture** — start run with built-in sample rows (includes one bad email on purpose).
-4. **Runs timeline** — watch steps move; call out lease/attempt counters.
+3. **Run fixture** or **Upload CSV** — start run with sample/client rows (includes bad email on purpose for fixture).
+4. **Runs timeline** — watch steps move; call out lease/attempt counters; HubSpot/Slack stub vs live.
 5. **Approvals** — show valid/invalid summary; **Approve**.
 6. **Export** — download CSV of valid rows only.
-7. **Audit** — scroll events: started, completed, approval.decided, run.completed.
-8. **Close** — “Acceptance is binary: rows processed, approval recorded, CSV out, failures visible. Not lead quality debates.”
+7. **Settings** — show integration badges + create webhook API key.
+8. **Audit** — scroll events: started, completed, approval.decided, run.completed.
+9. **Close** — “Acceptance is binary: rows processed, approval recorded, CSV out, failures visible. Not lead quality debates.”
 
 ## Lines to say early
 

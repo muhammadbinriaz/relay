@@ -73,6 +73,7 @@ def seed(db: Session) -> None:
     wf = (
         db.query(WorkflowDefinition)
         .filter(WorkflowDefinition.org_id == org.id, WorkflowDefinition.slug == "ops-intake")
+        .order_by(WorkflowDefinition.version.desc())
         .first()
     )
     if not wf:
@@ -81,7 +82,10 @@ def seed(db: Session) -> None:
                 org_id=org.id,
                 name="Ops Intake Pipeline",
                 slug="ops-intake",
-                description="CSV/webhook intake → validate → human approve → export CSV → Slack notify. Zero paid API keys required.",
+                description=(
+                    "CSV/webhook intake → validate → approve → export → HubSpot (optional) → Slack. "
+                    "Zero paid API keys required for the happy path."
+                ),
                 version=1,
                 graph=OPS_INTAKE_GRAPH,
                 is_active=True,
@@ -95,6 +99,34 @@ def seed(db: Session) -> None:
             actor_user_id=user.id,
         )
         logger.info("seeded_workflow ops-intake")
+    else:
+        # Keep demo workflow graph current for client-ready step types.
+        step_types = {s.get("type") for s in (wf.graph or {}).get("steps", [])}
+        if "hubspot.upsert" not in step_types:
+            wf.is_active = False
+            db.flush()
+            db.add(
+                WorkflowDefinition(
+                    org_id=org.id,
+                    name="Ops Intake Pipeline",
+                    slug="ops-intake",
+                    description=(
+                        "CSV/webhook intake → validate → approve → export → HubSpot (optional) → Slack. "
+                        "Zero paid API keys required for the happy path."
+                    ),
+                    version=wf.version + 1,
+                    graph=OPS_INTAKE_GRAPH,
+                    is_active=True,
+                )
+            )
+            write_audit(
+                db,
+                org_id=org.id,
+                event_type="seed.workflow_upgraded",
+                message=f"Upgraded ops-intake to v{wf.version + 1}",
+                actor_user_id=user.id,
+            )
+            logger.info("upgraded_workflow ops-intake to v%s", wf.version + 1)
 
     db.commit()
 

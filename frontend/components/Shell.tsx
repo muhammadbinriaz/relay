@@ -9,7 +9,9 @@ const links = [
   { href: "/dashboard", label: "Workflows" },
   { href: "/runs", label: "Runs" },
   { href: "/approvals", label: "Approvals" },
+  { href: "/dead-letters", label: "Dead letters" },
   { href: "/audit", label: "Audit" },
+  { href: "/settings", label: "Settings" },
 ];
 
 export function Shell({ children }: { children: React.ReactNode }) {

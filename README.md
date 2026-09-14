@@ -28,10 +28,10 @@ Login (seeded):
 
 ### Demo path (5 minutes)
 
-1. Sign in → **Workflows** → **Run fixture** on `ops-intake`
+1. Sign in → **Workflows** → **Run fixture** (or **Upload CSV**)
 2. Open **Approvals** → approve the batch
-3. Open the run timeline → download export CSV
-4. Confirm Slack step stubbed in audit (or real if `SLACK_WEBHOOK_URL` set)
+3. Open the run timeline → download export CSV; HubSpot/Slack show stub or live based on Settings
+4. Show **Dead letters** (empty is fine) + **Settings** (API key create for webhooks)
 
 See [CLIENT_DEMO.md](CLIENT_DEMO.md) and [SOW_TEMPLATE.md](SOW_TEMPLATE.md).
 

@@ -80,6 +80,14 @@ OPS_INTAKE_GRAPH: dict[str, Any] = {
             "name": "Export CSV",
             "config": {},
             "max_attempts": 3,
+            "next": "hubspot",
+        },
+        {
+            "key": "hubspot",
+            "type": "hubspot.upsert",
+            "name": "HubSpot upsert",
+            "config": {"skip_if_unconfigured": True},
+            "max_attempts": 3,
             "next": "notify",
         },
         {

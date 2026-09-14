@@ -1,7 +1,7 @@
 from pathlib import Path
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session, joinedload
 
@@ -35,6 +35,7 @@ from app.schemas import (
 )
 from app.services.audit import write_audit
 from app.services.queue import enqueue_step, incr_metric
+from app.services.ratelimit import rate_limit
 
 router = APIRouter(prefix="/api", tags=["workflows"])
 settings = get_settings()
@@ -199,9 +200,11 @@ def get_run(run_id: UUID, db: Session = Depends(get_db), auth: AuthContext = Dep
 async def webhook_trigger(
     slug: str,
     payload: dict,
+    request: Request,
     db: Session = Depends(get_db),
     auth: AuthContext = Depends(get_current_auth),
 ):
+    rate_limit(request, key="webhook", limit=60, window_seconds=60)
     definition = (
         db.query(WorkflowDefinition)
         .filter(

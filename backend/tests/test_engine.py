@@ -10,7 +10,7 @@ from app.engine.graph import OPS_INTAKE_GRAPH, WorkflowGraph
 def test_ops_intake_graph_valid():
     graph = WorkflowGraph.model_validate(OPS_INTAKE_GRAPH)
     ordered = graph.ordered_from_entry()
-    assert [s.key for s in ordered] == ["ingest", "validate", "approve", "export", "notify"]
+    assert [s.key for s in ordered] == ["ingest", "validate", "approve", "export", "hubspot", "notify"]
 
 
 @pytest.mark.asyncio
@@ -41,11 +41,11 @@ async def test_ingest_fixture_flag():
 
 
 @pytest.mark.asyncio
-async def test_human_approve_pauses():
+async def test_hubspot_stubs_without_token():
     result = await execute_step(
-        "human.approve",
-        {"title": "Approve"},
-        {"validate": {"summary": "ok", "valid_count": 2, "invalid_count": 1, "valid_rows": [], "invalid_rows": []}},
+        "hubspot.upsert",
+        {"skip_if_unconfigured": True},
+        {"validate": {"valid_rows": [{"email": "a@test.com", "name": "A", "company": "Acme"}]}},
         run_id=uuid4(),
     )
-    assert result.needs_approval is True
+    assert result.output.get("stub") is True

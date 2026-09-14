@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, Field
 
 
 class TokenResponse(BaseModel):
@@ -20,7 +20,7 @@ class LoginRequest(BaseModel):
 
 class UserOut(BaseModel):
     id: UUID
-    email: EmailStr
+    email: str
     name: str
 
     model_config = {"from_attributes": True}
@@ -153,6 +153,26 @@ class ApiKeyCreated(BaseModel):
     key_prefix: str
     api_key: str
     created_at: datetime
+
+
+class ApiKeyOut(BaseModel):
+    id: UUID
+    name: str
+    key_prefix: str
+    is_active: bool
+    created_at: datetime
+    last_used_at: datetime | None
+    revoked_at: datetime | None
+
+    model_config = {"from_attributes": True}
+
+
+class IntegrationStatus(BaseModel):
+    slack_configured: bool
+    hubspot_configured: bool
+    export_dir: str
+    api_url: str
+    app_url: str
 
 
 class HealthOut(BaseModel):
