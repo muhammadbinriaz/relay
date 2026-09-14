@@ -37,15 +37,16 @@ export default function LoginPage() {
     <div className="hero-login">
       <form className="panel login-card stack fade-in" onSubmit={onSubmit}>
         <div>
+          <p className="label">Control plane</p>
           <h1>Relay</h1>
           <p className="muted">Sign in to the durable workflow console.</p>
         </div>
         <label className="stack">
-          <span className="muted">Email</span>
+          <span className="label">Email</span>
           <input className="input" value={email} onChange={(e) => setEmail(e.target.value)} />
         </label>
         <label className="stack">
-          <span className="muted">Password</span>
+          <span className="label">Password</span>
           <input
             className="input"
             type="password"

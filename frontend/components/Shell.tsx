@@ -35,32 +35,43 @@ export function Shell({ children }: { children: React.ReactNode }) {
     );
   }
 
+  const section =
+    links.find((l) => pathname.startsWith(l.href))?.label?.toUpperCase() || "CONSOLE";
+
   return (
-    <div className="shell fade-in">
-      <header className="topbar">
-        <div className="brand">
+    <>
+      <div className="chapter-band">
+        <div className="inner">
           <strong>Relay</strong>
-          <span>Durable workflow control plane</span>
+          <span>{section}</span>
         </div>
-        <nav className="nav">
-          {links.map((l) => (
-            <Link key={l.href} href={l.href} className={pathname.startsWith(l.href) ? "active" : ""}>
-              {l.label}
-            </Link>
-          ))}
-          <button
-            className="btn"
-            onClick={() => {
-              clearAuth();
-              router.replace("/");
-            }}
-          >
-            Sign out
-          </button>
-        </nav>
-      </header>
-      {children}
-    </div>
+      </div>
+      <div className="shell fade-in">
+        <header className="topbar">
+          <div className="brand">
+            <strong>Relay</strong>
+            <span>Durable workflow control plane</span>
+          </div>
+          <nav className="nav">
+            {links.map((l) => (
+              <Link key={l.href} href={l.href} className={pathname.startsWith(l.href) ? "active" : ""}>
+                {l.label}
+              </Link>
+            ))}
+            <button
+              className="btn"
+              onClick={() => {
+                clearAuth();
+                router.replace("/");
+              }}
+            >
+              Sign out
+            </button>
+          </nav>
+        </header>
+        {children}
+      </div>
+    </>
   );
 }
 
