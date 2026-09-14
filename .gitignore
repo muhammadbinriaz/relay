@@ -1,0 +1,31 @@
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.venv/
+venv/
+
+# Env & secrets
+.env
+*.pem
+
+# Node
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+
+# Exports & data
+data/
+*.csv.bak
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Coverage
+.coverage
+htmlcov/

@@ -1,0 +1,7 @@
+name,email,company,title
+Aisha Khan,aisha@acme.test,Acme Labs,Ops Lead
+Ben Ortiz,ben@northwind.test,Northwind,Coordinator
+Bad Row,not-an-email,,N/A
+Chen Wei,chen@globex.test,Globex,Analyst
+Dana Lee,  DANA@initech.test ,Initech,Manager
+Eva Moss,eva@umbrella.test,Umbrella,Specialist
